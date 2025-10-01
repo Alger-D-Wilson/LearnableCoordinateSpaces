@@ -1,0 +1,117 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{titling}
+\usepackage{geometry}
+\usepackage{hyperref} 
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{enumitem}
+% 
+\geometry{top=1cm}
+
+% 
+\pretitle{
+    \begin{center}
+    \includegraphics[width=1.8cm]{tarot-6249969.jpg"}\\[\bigskipamount]
+    \LARGE 
+}
+
+
+\posttitle{\par\end{center}}
+
+
+\title{Learnable Spaces Conceptual Paper}
+\author{
+  Alger Wilson \\ 
+  % 
+  \large \href{algerwilson@proton.me}{algerwilson@proton.me} \\
+  \large \url{https://github.com/Alger-D-Wilson/LearnableCoordinateSpaces}
+}
+
+\date{\today}
+\begin{document}
+
+\maketitle 
+
+\section{Introduction}
+The Artificial Neural Network(ANN's) have been at the forefront of learning. The question 
+
+\newpage 
+
+
+\section{Defining Learnable Spaces}
+In mathmatics a "space" can be defined as a set with structure mapping the relationship of the elements in the set. There is a unviverse of possible Learnable Spaces of wich 
+a space is populated with some function or functions and equipped with some optimization algorithm or algorithms. 
+
+
+\section{Learnable Coordinate Spaces Base}
+This leaves a lot of choiches for defining the intial parameters of a learnable space. Intuition leads to the idea of just copying the type of space that is the unviverse, 
+with the universe being a 3d space combined with a 4th dimension of time, 
+otherwise known as the spacetime continuum credit to Minkowski.Our 3d space simplification of the universe can be defined as a Euclidean space since the cosmological curvature parameter
+estimated by the Planck mission is said to be $\ \Omega_K = 0.0007 \pm 0.0019$. Euclidean Space defintion below.
+$$\mathbb{R}^3 = \mathbb{R} \times \mathbb{R} \times \mathbb{R} = \{ (x, y, z) \mid x, y, z \in \mathbb{R} \}$$
+For the 4th dimension of time since this is a very rough draft of a learnable space we will simply define time to be the progress of the learnable space, with our Planck time $t_P$ simply 
+being a discrete optimization step in some evolution function $\mathcal{F}$ for our universe $ \Psi(t)$.
+$$ \Psi(t + t_P) = \mathcal{F}(\Psi(t)) $$
+This give's us a Coordinate space with a 4d time dimension. To make it learnable add any type of computation/functions alongside a optimization algorithm that can be used to minimize a loss function.This in theory is 
+a universal approximator.
+
+\section{Light LC's}
+An early reasonable implementiation of LC'S would be a phyiscs-lite based Light Learnable Coordinate Space. We will build the space using the Learnable Coordinate base and we will
+populate the space with "learnable drops" these drops will be perfectly spherical and will all be 'water' for easy of computation sake. These drops will be randomly scattered in our
+space, defined as a set $\mathcal{S}$ of $N$ drops.
+$$ \mathcal{S} = \{D_1, D_2, \dots, D_N\} $$
+Each drop $D_i$ can be defined as a sphere with its tuple of properties 
+position $\mathbf{p}_i$, a constant radius $r$, a weight $W$, and an energy value $E$ and is IOR value of 1.333 for water.
+$$ D_i = (\mathbf{p}_i, r, W, E,radiance,1.333) $$
+
+
+
+Into this populated space goes some batch $ \mathcal{B}$ of data from some 
+dataset $ \mathcal{D}$. We will spawn those data points in a form of a ray defined as tuple containing its associated data $\delta$; its origin point, $\mathbf{p}$; and its normalized direction vector,  
+$\mathbf{\hat{d}}$. 
+
+$$ R = (\delta, \mathbf{p}, \mathbf{\hat{d}}) $$
+Defining the origin point and its normalized direction will vary case by case and need expermimenting with. My current ideas on defining origin point of the ray is as followed
+\begin{itemize}
+    \item Use a focal point to which rays enter the space from outside the universe.
+    \item Spawn from center coordinate 0,0,0  possible define normalized vector from postion in sequence as an idea.
+    \item For areas where embeddings can be used such as NLP, use frozen embedding that spawn ray with origin and normalized vector.
+
+\end{itemize}
+This ray will be used to propagate our learnable space and we define the movement of the ray as just a straight line/Rectilinear Propagation. These rays will hit the nearest
+'drop' in its path and then refract and relfect, instead of using the Fresnel equations which are computationaly heavy for this behavior we will use the standard Schlick Approximation 
+commonly used in computer graphics.The reflectance $F_r$ as a function of the angle of incidence $\theta_i$ is
+$$ F_r(\theta_i) \approx R_0 + (1 - R_0)(1 - \cos(\theta_i))^5 $$
+where $ R_0$ is the reflection coefficient for light incoming parallel to the normal defined as 
+$$ R_0 = \left( \frac{n_1 - n_2}{n_1 + n_2} \right)^2 $$
+%just watched the corniest youtube short fucck
+To handle computational cost of doubling rays we need a method to terminate them. We will use an energy partitioning function 
+which takes the incident radiance $L_{\text{in}}$ and $theta_i$ as inputs. If $L_{\text{in}}$ is below our threshold $epsilon$ then we
+terminate the ray, otherwise the function partitions the radiance of the reflected and refracted rays as $(L_{\text{reflect}}, L_{\text{refract}})$
+based on Schlick Approximation for reflectance $F_r(\theta_i)$
+$$
+(L_{\text{reflect}}, L_{\text{refract}}) =
+\begin{cases}
+(0, 0) & \text{if } L_{\text{in}} < \epsilon \\
+(L_{\text{in}} \cdot F_r(\theta_i), L_{\text{in}} \cdot (1 - F_r(\theta_i))) & \text{otherwise}
+\end{cases}
+$$
+This is not differntiable howeve at one point so what do we do? We could lowkey just ignore it. Or we could use a smooth cutoff by using a sigmoid gate.
+Let $\sigma(x)$ be its standar function
+use this to define a gating function, $g(L_{\text{in}})$,
+steepness of this transition is controlled by a constant $k$
+The final energy partitioning function is then given by:
+$$ (L_{\text{reflect}}, L_{\text{refract}}) = g(L_{\text{in}}) \cdot (L_{\text{in}} \cdot F_r(\theta_i), L_{\text{in}} \cdot (1 - F_r(\theta_i))) $$
+This formulation ensures the entire process is fully differentiable while closely approximating a hard cutoff for a large $k$.
+Determining when rays should be used to predict ŷ and how to go about it has options aswell that needs to be considered and tested.
+\begin{itemize}
+    \item Have the prediction be a weighted sum of rays below a certain energy threshold and depth limit.
+    \item Do the same above but if a ray exits the universe aswell add that to final prediction.
+    \item others?
+
+\end{itemize}
+minimizing the loss of the universe for the global objectavie function we run back prop on the ray march and all its computations.
+$L(hat{y},y)$ , we can compute the gradient $( \nabla_\Theta L )$ in regards to learnable params Weight and Energy
+
+% going forward needs to expand on forward pass math and backprop math also needs a working example and benchmarking octree will be the way the space is built i believe 
